@@ -1,4 +1,4 @@
-import { Controller, Get, HttpStatus, Param, Res } from '@nestjs/common';
+import { Controller, Get, Param, Res } from '@nestjs/common';
 import { RoomsService } from './rooms.service';
 
 @Controller('rooms')
@@ -8,13 +8,16 @@ export class RoomsController {
   @Get()
   async index(@Res() res) {
     const rooms = await this.roomsService.findAllRooms();
-    return res.status(HttpStatus.OK).json(rooms);
+    return res.status(200).json(rooms);
   }
 
   @Get(':id')
   async show(@Param() param, @Res() res) {
     const { id } = param
     const room = await this.roomsService.findRoom(id)
-    return res.status(HttpStatus.OK).json(room)
+    if (!room) {
+      return res.status(404).json({ message: "Room not Found." })
+    }
+    return res.status(200).json(room)
   }
 }
