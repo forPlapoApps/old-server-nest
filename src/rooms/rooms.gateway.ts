@@ -14,6 +14,8 @@ export class RoomsGateway {
       { id: 'foobar', name: 'mySecondRoom'}
     ]
 
+    console.log(rooms)
+
     return rooms;
   }
 }
