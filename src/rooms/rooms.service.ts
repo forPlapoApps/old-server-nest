@@ -15,7 +15,18 @@ export class RoomsService {
 
   async findRoom(id): Promise<Room> {
     return await this.prisma.room.findFirst({
-      where: { id }
+      where: { id },
+    });
+  }
+
+  async createRoom(): Promise<Room> {
+    const date = new Date
+    const today_char: string = date.toString() // 後で変更
+
+    return await this.prisma.room.create({
+      data: {
+        name: today_char
+      }
     })
   }
 }
