@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Room } from '@prisma/client';
 
 @Injectable()
 export class RoomsService {
@@ -9,7 +9,13 @@ export class RoomsService {
     this.prisma = new PrismaClient();
   }
 
-  async findAllRooms() {
+  async findAllRooms(): Promise<Room[]> {
     return await this.prisma.room.findMany();
+  }
+
+  async findRoom(id): Promise<Room> {
+    return await this.prisma.room.findFirst({
+      where: { id }
+    })
   }
 }
