@@ -2,8 +2,8 @@ import { SubscribeMessage, WebSocketGateway } from '@nestjs/websockets';
 
 @WebSocketGateway({
   cors: {
-    origin: "*"
-  }
+    origin: '*',
+  },
 })
 export class RoomsGateway {
   @SubscribeMessage('message')
@@ -11,10 +11,10 @@ export class RoomsGateway {
   handleMessage() {
     const rooms = [
       { id: 'hogehoge', name: 'myFirstRoom' },
-      { id: 'foobar', name: 'mySecondRoom'}
-    ]
+      { id: 'foobar', name: 'mySecondRoom' },
+    ];
 
-    console.log(rooms)
+    console.log(rooms);
 
     return rooms;
   }
