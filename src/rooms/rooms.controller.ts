@@ -12,8 +12,7 @@ export class RoomsController {
   }
 
   @Get(':id')
-  async show(@Param() param, @Res() res) {
-    const { id } = param
+  async show(@Param('id') id: string, @Res() res) {
     const room = await this.roomsService.findRoom(id)
     if (!room) {
       return res.status(404).json({ message: "Room not Found." })
