@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Put, Res } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Res } from '@nestjs/common';
 import { RoomsService } from './rooms.service';
 import { Room } from '@prisma/client';
 
@@ -30,6 +30,12 @@ export class RoomsController {
   @Put(':id')
   async update(@Param('id') id: string, @Body() roomParams: Room, @Res() res): Promise<Room> {
     const room = await this.roomsService.updateRoom(id, roomParams)
+    return res.status(200).json(room)
+  }
+
+  @Delete(':id')
+  async delete(@Param('id') id: string, @Res() res): Promise<Room> {
+    const room = await this.roomsService.deleteRoom(id)
     return res.status(200).json(room)
   }
 }

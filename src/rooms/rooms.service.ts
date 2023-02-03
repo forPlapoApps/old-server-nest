@@ -45,4 +45,10 @@ export class RoomsService {
       }
     })
   }
+
+  async deleteRoom(id): Promise<Room> {
+    return this.prisma.room.delete({
+      where: { id }
+    })
+  }
 }
