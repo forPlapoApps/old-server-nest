@@ -10,7 +10,11 @@ export class RoomsService {
   }
 
   async findAllRooms(): Promise<Room[]> {
-    return await this.prisma.room.findMany();
+    return await this.prisma.room.findMany({
+      orderBy: {
+        createdAt: "desc"
+      }
+    });
   }
 
   async findRoom(id): Promise<Room> {
@@ -26,6 +30,18 @@ export class RoomsService {
     return await this.prisma.room.create({
       data: {
         name: today_char
+      }
+    })
+  }
+  
+  async updateRoom(id, roomParams): Promise<Room> {
+    const { name } = roomParams
+    return await this.prisma.room.update({
+      where: {
+        id
+      },
+      data: {
+        name: name
       }
     })
   }

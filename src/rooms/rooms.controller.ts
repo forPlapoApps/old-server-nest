@@ -1,5 +1,6 @@
-import { Controller, Get, Param, Post, Res } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Put, Res } from '@nestjs/common';
 import { RoomsService } from './rooms.service';
+import { Room } from '@prisma/client';
 
 @Controller('rooms')
 export class RoomsController {
@@ -23,6 +24,12 @@ export class RoomsController {
   @Post()
   async create(@Res() res) {
     const room = await this.roomsService.createRoom();
+    return res.status(200).json(room)
+  }
+
+  @Put(':id')
+  async update(@Param('id') id: string, @Body() roomParams: Room, @Res() res): Promise<Room> {
+    const room = await this.roomsService.updateRoom(id, roomParams)
     return res.status(200).json(room)
   }
 }
