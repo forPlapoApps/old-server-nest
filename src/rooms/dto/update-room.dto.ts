@@ -1,3 +1,6 @@
+import { IsNotEmpty } from 'class-validator';
+
 export class UpdateRoomDto {
-  name: string
+  @IsNotEmpty()
+  name: string;
 }
