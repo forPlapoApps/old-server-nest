@@ -7,13 +7,20 @@ export class UserService {
   private readonly prisma: PrismaClient;
 
   constructor() {
-    this.prisma = new PrismaClient()
+    this.prisma = new PrismaClient();
   }
 
   async create(createUserDto: CreateUserDto) {
-    const user = await this.prisma.user.create({
-      data: createUserDto
-    })
-    return user
+    // NOTE: このupsertはfind_or_create_byのように扱うため、
+    //       updateの中身が空になっている。
+    const user = await this.prisma.user.upsert({
+      where: {
+        firebaseId: createUserDto.firebaseId,
+      },
+      update: {},
+      create: createUserDto,
+    });
+
+    return user;
   }
 }
