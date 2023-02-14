@@ -9,4 +9,7 @@ export class CreateUserDto {
 
   @IsNotEmpty()
   firebaseId: string;
+
+  @IsNotEmpty()
+  imageUrl: string;
 }
