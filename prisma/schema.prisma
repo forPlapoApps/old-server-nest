@@ -11,19 +11,33 @@ datasource db {
 }
 
 model Room {
-  id                 String   @id @default(cuid())
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
+  id                 String     @id @default(cuid())
+  createdAt          DateTime   @default(now())
+  updatedAt          DateTime   @updatedAt
   name               String
-  participantsLength Int      @default(0)
+  participantsLength Int        @default(0)
+  users              User[]     @relation("UserRoom")
+  UserRoom           UserRoom[]
 }
 
 model User {
-  id         String   @id @default(cuid())
+  id         String     @id @default(cuid())
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
   name       String
-  email      String   @unique
-  firebaseId String   @unique
-  imageUrl   String   @default("")
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  email      String     @unique
+  firebaseId String     @unique
+  imageUrl   String     @default("")
+  rooms      Room[]     @relation("UserRoom")
+  UserRoom   UserRoom[]
+}
+
+model UserRoom {
+  id      String @id @default(cuid())
+  user_id String
+  user    User   @relation(fields: [user_id], references: [id])
+  room_id String
+  room    Room   @relation(fields: [room_id], references: [id])
+
+  @@unique([user_id, room_id])
 }
