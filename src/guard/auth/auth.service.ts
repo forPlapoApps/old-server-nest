@@ -20,11 +20,10 @@ admin.initializeApp(firebase_params);
 @Injectable()
 export class AuthService {
   async validateUser(idToken: string): Promise<any> {
-    if (!idToken) throw new UnauthorizedException('認証されていません');
+    if (!idToken) throw new UnauthorizedException('Incorrect authentication');
 
     try {
       const user = await admin.auth().verifyIdToken(idToken);
-      console.log(user)
       return user;
     } catch (e) {
       throw new HttpException('Forbidden', e);
