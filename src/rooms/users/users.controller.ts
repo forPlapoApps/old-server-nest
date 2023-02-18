@@ -1,6 +1,7 @@
-import { Controller, Post, UseGuards } from '@nestjs/common';
+import { Controller, Param, Post, UseGuards } from '@nestjs/common';
 import { RoomUsersService } from './users.service';
 import { AuthGuard } from 'src/guard/auth/auth.guard';
+import { UserGuardDecorator } from 'decorators/UserGuardDecorator';
 
 @Controller('rooms/:roomId/users')
 export class RoomUsersController {
@@ -8,7 +9,7 @@ export class RoomUsersController {
 
   @Post()
   @UseGuards(AuthGuard)
-  create() {
-    return this.roomUsersService.create()
+  create(@Param('roomId') roomId: string, @UserGuardDecorator() firebaseUser) {
+    return this.roomUsersService.create(roomId, firebaseUser.user_id)
   }
 }
