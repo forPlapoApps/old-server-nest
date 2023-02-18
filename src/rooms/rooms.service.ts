@@ -11,39 +11,39 @@ export class RoomsService {
   }
 
   async findAll() {
-    const rooms = await this.prisma.room.findMany();
-    return rooms
+    const rooms = await this.prisma.room.findMany({ include: { users: true } });
+    return rooms;
   }
 
   async findOne(id: string) {
-    const room = await this.prisma.room.findFirst({ where: { id }})
+    const room = await this.prisma.room.findFirst({ where: { id } });
     if (!room) {
-      throw new NotFoundException()
+      throw new NotFoundException();
     }
-    return room
+    return room;
   }
-  
+
   async create() {
-    const date = new Date
+    const date = new Date();
     const room = await this.prisma.room.create({
       data: {
-        name: date.toString()
-      }
-    })
+        name: date.toString(),
+      },
+    });
     return room;
   }
 
   async update(id: string, updateRoomDto: UpdateRoomDto) {
     const room = await this.prisma.room.update({
       where: { id },
-      data: updateRoomDto
-    })
+      data: updateRoomDto,
+    });
     return room;
   }
 
   async remove(id: string) {
     const room = await this.prisma.room.delete({
-      where: { id }
+      where: { id },
     });
     return room;
   }
