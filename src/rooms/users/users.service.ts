@@ -16,6 +16,9 @@ export class RoomUsersService {
         users: {
           connect: { firebaseId: userFirebaseId },
         },
+        participantsLength: {
+          increment: 1,
+        },
       },
       include: { users: true },
     });
@@ -29,6 +32,9 @@ export class RoomUsersService {
       data: {
         users: {
           disconnect: { firebaseId: userFirebaseId },
+        },
+        participantsLength: {
+          decrement: 1,
         },
       },
       include: { users: true },
