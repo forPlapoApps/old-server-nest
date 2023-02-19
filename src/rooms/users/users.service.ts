@@ -1,19 +1,19 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
+import { RoomsService } from '../rooms.service';
 
 @Injectable()
 export class RoomUsersService {
-  private readonly prisma: PrismaClient;
+  private readonly prisma: PrismaClient
 
-  constructor() {
+  constructor(
+    private readonly roomService: RoomsService
+  ) {
     this.prisma = new PrismaClient();
   }
 
   async create(roomId: string, userFirebaseId: string) {
-    const room = await this.prisma.room.findFirst({
-      where: { id: roomId },
-      include: { users: true },
-    });
+    const room = this.roomService.setRoom(roomId)
     const user = await this.prisma.user.findFirst({
       where: { firebaseId: userFirebaseId },
     });

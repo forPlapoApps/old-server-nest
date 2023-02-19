@@ -15,11 +15,8 @@ export class RoomsService {
     return rooms;
   }
 
-  async findOne(id: string) {
-    const room = await this.prisma.room.findFirst({ where: { id } });
-    if (!room) {
-      throw new NotFoundException();
-    }
+  findOne(id: string) {
+    const room = this.setRoom(id);
     return room;
   }
 
@@ -45,6 +42,19 @@ export class RoomsService {
     const room = await this.prisma.room.delete({
       where: { id },
     });
+    return room;
+  }
+
+  // ＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝
+  // 共通処理
+  async setRoom(roomId: string) {
+    const room = await this.prisma.room.findFirst({
+      where: { id: roomId },
+      include: { users: true },
+    });
+    if (!room) {
+      throw new NotFoundException();
+    }
     return room;
   }
 }
