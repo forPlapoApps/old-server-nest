@@ -46,7 +46,6 @@ export class RoomsService {
   }
 
   // ＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝
-  // 共通処理
   async setRoom(roomId: string) {
     const room = await this.prisma.room.findFirst({
       where: { id: roomId },

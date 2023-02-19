@@ -3,10 +3,11 @@ import { RoomUsersService } from './users.service';
 import { RoomUsersController } from './users.controller';
 import { AuthModule } from 'src/guard/auth/auth.module';
 import { RoomsService } from '../rooms.service';
+import { UserService } from 'src/users/user.service';
 
 @Module({
   controllers: [RoomUsersController],
-  providers: [RoomUsersService, RoomsService],
-  imports: [AuthModule]
+  providers: [RoomUsersService, RoomsService, UserService],
+  imports: [AuthModule],
 })
 export class RoomUsersModule {}
