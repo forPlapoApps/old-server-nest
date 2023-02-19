@@ -11,21 +11,46 @@ datasource db {
 }
 
 model Room {
-  id                 String     @id @default(cuid())
-  createdAt          DateTime   @default(now())
-  updatedAt          DateTime   @updatedAt
+  id                 String   @id @default(cuid())
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
   name               String
-  participantsLength Int        @default(0)
+  participantsLength Int      @default(0)
   users              User[]
+  plapo              Plapo    @relation(fields: [plapoId], references: [id], onDelete: Cascade)
+  plapoId            String   @unique
 }
 
 model User {
-  id         String     @id @default(cuid())
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime   @updatedAt
+  id         String   @id @default(cuid())
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
   name       String
-  email      String     @unique
-  firebaseId String     @unique
-  imageUrl   String     @default("")
+  email      String   @unique
+  firebaseId String   @unique
+  imageUrl   String   @default("")
   rooms      Room[]
+  votes      Vote[]
+}
+
+model Plapo {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ave       Int      @default(0)
+  agreement Int      @default(0)
+  isVisile  Boolean  @default(false)
+  votes     Vote[]
+  room      Room?
+}
+
+model Vote {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  value     Int      @default(0)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  plapo     Plapo    @relation(fields: [plapoId], references: [id], onDelete: Cascade)
+  plapoId   String
 }
