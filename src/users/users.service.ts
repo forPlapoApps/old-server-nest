@@ -1,9 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { PrismaClient } from '@prisma/client';
 
 @Injectable()
-export class UserService {
+export class UsersService {
   private readonly prisma: PrismaClient;
 
   constructor() {
@@ -22,5 +22,16 @@ export class UserService {
     });
 
     return user;
+  }
+
+  // =================
+  async setUser(userFirebaseId: string) {
+    const user = await this.prisma.user.findFirst({
+      where: { firebaseId: userFirebaseId },
+    });
+    if (!user) {
+      throw new NotFoundException();
+    }
+    return user
   }
 }

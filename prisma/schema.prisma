@@ -16,8 +16,7 @@ model Room {
   updatedAt          DateTime   @updatedAt
   name               String
   participantsLength Int        @default(0)
-  users              User[]     @relation("UserRoom")
-  UserRoom           UserRoom[]
+  users              User[]
 }
 
 model User {
@@ -28,16 +27,5 @@ model User {
   email      String     @unique
   firebaseId String     @unique
   imageUrl   String     @default("")
-  rooms      Room[]     @relation("UserRoom")
-  UserRoom   UserRoom[]
-}
-
-model UserRoom {
-  id      String @id @default(cuid())
-  user_id String
-  user    User   @relation(fields: [user_id], references: [id])
-  room_id String
-  room    Room   @relation(fields: [room_id], references: [id])
-
-  @@unique([user_id, room_id])
+  rooms      Room[]
 }
