@@ -33,11 +33,11 @@ model User {
 }
 
 model RoomUser {
-  id      String @id @default(cuid())
-  user_id String
-  user    User   @relation(fields: [user_id], references: [id])
-  room_id String
-  room    Room   @relation(fields: [room_id], references: [id])
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+  roomId String
+  room   Room   @relation(fields: [roomId], references: [id])
 
-  @@unique([user_id, room_id])
+  @@unique([userId, roomId])
 }
