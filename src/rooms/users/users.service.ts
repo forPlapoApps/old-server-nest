@@ -1,24 +1,38 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
-import { RoomsService } from '../rooms.service';
-import { UserService } from 'src/users/users.service';
 
 @Injectable()
 export class RoomUsersService {
   private readonly prisma: PrismaClient;
 
-  constructor(
-    private readonly roomService: RoomsService,
-    private readonly userService: UserService,
-  ) {
+  constructor() {
     this.prisma = new PrismaClient();
   }
 
   async create(roomId: string, userFirebaseId: string) {
-    const room = this.roomService.setRoom(roomId);
-    const user = this.userService.setUser(userFirebaseId);
+    const room = await this.prisma.room.update({
+      where: { id: roomId },
+      data: {
+        users: {
+          connect: { firebaseId: userFirebaseId },
+        },
+      },
+      include: { users: true },
+    });
 
-    // RoomUserの処理を書く
+    return room;
+  }
+
+  async delete(roomId: string, userFirebaseId: string) {
+    const room = await this.prisma.room.update({
+      where: { id: roomId },
+      data: {
+        users: {
+          disconnect: { firebaseId: userFirebaseId },
+        },
+      },
+      include: { users: true },
+    });
 
     return room;
   }
