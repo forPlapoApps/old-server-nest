@@ -5,25 +5,44 @@ import { UsersService } from 'src/users/users.service';
 
 @Injectable()
 export class RoomUsersService {
-  private readonly prisma: PrismaClient;
-
   constructor(
+    private readonly prisma: PrismaClient,
     private readonly roomsService: RoomsService,
     private readonly usersService: UsersService,
-  ) {
-    this.prisma = new PrismaClient();
-    this.roomsService = roomsService;
+  ) {}
+
+  async create(roomId: string, userFirebaseId: string) {
+    const user = await this.usersService.findOneByFirebaseId(userFirebaseId);
+
+    if (!this.isAlreadyConnected(roomId, user)) {
+      const room = await this.connectRoomWithUser(roomId, user.id);
+      const vote = await this.createVote(room.plapo.id, user.id);
+    }
+
+    return this.roomsService.setRoom(roomId);
   }
 
-  // RoomとUserの紐付け
-  async create(roomId: string, userFirebaseId: string) {
-    const user = await this.usersService.setUserFromFirebaseId(userFirebaseId);
+  async delete(roomId: string, userFirebaseId: string) {
+    const user = await this.usersService.findOneByFirebaseId(userFirebaseId);
 
+    if (this.isAlreadyConnected(roomId, user)) {
+      const room = await this.disConnectRoomWithUser(roomId, user.id);
+      const vote = await this.deleteVote(room.plapo.id, user.id);
+    }
+
+    return this.roomsService.setRoom(roomId);
+  }
+
+  private isAlreadyConnected(roomId: string, user): boolean {
+    return user.rooms.filter((room) => room.id == roomId).length != 0;
+  }
+
+  private async connectRoomWithUser(roomId: string, userId: string) {
     const room = await this.prisma.room.update({
       where: { id: roomId },
       data: {
         users: {
-          connect: { firebaseId: userFirebaseId },
+          connect: { id: userId },
         },
         participantsLength: {
           increment: 1,
@@ -31,49 +50,51 @@ export class RoomUsersService {
       },
       include: { users: true, plapo: true },
     });
-
-    // PlapoのVote配列にもUserの情報を追加
-    const vote = await this.prisma.vote.create({
-      data: {
-        value: 0,
-        plapo: {
-          connect: {
-            id: room.plapo.id,
-          },
-        },
-        user: {
-          connect: {
-            id: user.id,
-          },
-        },
-      },
-    });
-
-    return this.roomsService.setRoom(room.id);
+    return room;
   }
 
-  // RoomとUserの紐付けを解除
-  async delete(roomId: string, userFirebaseId: string) {
-    const user = await this.usersService.setUserFromFirebaseId(userFirebaseId);
-
+  private async disConnectRoomWithUser(roomId: string, userId: string) {
     const room = await this.prisma.room.update({
       where: { id: roomId },
       data: {
         users: {
-          disconnect: { firebaseId: userFirebaseId },
+          disconnect: { id: userId },
         },
         participantsLength: {
           decrement: 1,
         },
       },
-      include: { plapo: true },
+      include: { users: true, plapo: true },
     });
 
-    // Plapoの中の該当するUserのVoteも消す
+    return room;
+  }
+
+  private async createVote(plapoId: string, userId: string) {
+    const vote = await this.prisma.vote.create({
+      data: {
+        value: 0,
+        plapo: {
+          connect: {
+            id: plapoId,
+          },
+        },
+        user: {
+          connect: {
+            id: userId,
+          },
+        },
+      },
+    });
+
+    return vote;
+  }
+
+  private async deleteVote(plapoId: string, userId: string) {
     const vote = await this.prisma.vote.deleteMany({
-      where: { plapoId: room.plapo.id, userId: user.id },
+      where: { plapoId: plapoId, userId: userId },
     });
 
-    return this.roomsService.setRoom(room.id);
+    return vote;
   }
 }

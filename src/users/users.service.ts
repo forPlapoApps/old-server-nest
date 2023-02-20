@@ -10,6 +10,17 @@ export class UsersService {
     this.prisma = new PrismaClient();
   }
 
+  async findOne(userId: string) {
+    const user = await this.prisma.user.findFirst({
+      where: { id: userId },
+      include: { rooms: true }
+    })
+    if (!user) {
+      throw new NotFoundException();
+    }
+    return user;
+  }
+
   async create(createUserDto: CreateUserDto) {
     // NOTE: このupsertはfind_or_create_byのように扱うため、
     //       updateの中身が空になっている。
@@ -24,14 +35,14 @@ export class UsersService {
     return user;
   }
 
-  // =================
-  async setUserFromFirebaseId(userFirebaseId: string) {
+  async findOneByFirebaseId(userFirebaseId: string) {
     const user = await this.prisma.user.findFirst({
       where: { firebaseId: userFirebaseId },
+      include: { rooms: true },
     });
     if (!user) {
       throw new NotFoundException();
     }
-    return user
+    return user;
   }
 }
