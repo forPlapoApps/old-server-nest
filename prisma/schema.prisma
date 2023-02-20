@@ -17,8 +17,7 @@ model Room {
   name               String
   participantsLength Int      @default(0)
   users              User[]
-  plapo              Plapo    @relation(fields: [plapoId], references: [id], onDelete: Cascade)
-  plapoId            String   @unique
+  plapo              Plapo?
 }
 
 model User {
@@ -41,7 +40,8 @@ model Plapo {
   agreement Int      @default(0)
   isVisile  Boolean  @default(false)
   votes     Vote[]
-  room      Room?
+  room      Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  roomId    String   @unique
 }
 
 model Vote {
