@@ -12,7 +12,7 @@ export class RoomsService {
 
   async findAll() {
     const rooms = await this.prisma.room.findMany({
-      include: { users: true, plapo: true },
+      include: { users: true },
     });
     return rooms;
   }
@@ -28,6 +28,7 @@ export class RoomsService {
       data: {
         name: date.toString(),
       },
+      include: { users: true },
     });
     const plapo = await this.prisma.plapo.create({
       data: {
@@ -64,7 +65,16 @@ export class RoomsService {
   async setRoom(roomId: string) {
     const room = await this.prisma.room.findFirst({
       where: { id: roomId },
-      include: { users: true, plapo: true },
+      include: {
+        users: true,
+        plapo: {
+          include: {
+            votes: {
+              include: { user: true },
+            },
+          },
+        },
+      },
     });
     if (!room) {
       throw new NotFoundException();

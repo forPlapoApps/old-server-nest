@@ -25,7 +25,7 @@ export class UsersService {
   }
 
   // =================
-  async setUser(userFirebaseId: string) {
+  async setUserFromFirebaseId(userFirebaseId: string) {
     const user = await this.prisma.user.findFirst({
       where: { firebaseId: userFirebaseId },
     });
