@@ -11,7 +11,9 @@ export class RoomsService {
   }
 
   async findAll() {
-    const rooms = await this.prisma.room.findMany({ include: { users: true } });
+    const rooms = await this.prisma.room.findMany({
+      include: { users: true, plapo: true },
+    });
     return rooms;
   }
 
@@ -22,9 +24,21 @@ export class RoomsService {
 
   async create() {
     const date = new Date();
+    const plapo = await this.prisma.plapo.create({
+      data: {
+        ave: 0,
+        agreement: 0,
+        isVisile: false,
+      },
+    });
     const room = await this.prisma.room.create({
       data: {
         name: date.toString(),
+        plapo: {
+          connect: {
+            id: plapo.id,
+          },
+        },
       },
     });
     return room;
@@ -49,7 +63,7 @@ export class RoomsService {
   async setRoom(roomId: string) {
     const room = await this.prisma.room.findFirst({
       where: { id: roomId },
-      include: { users: true },
+      include: { users: true, plapo: true },
     });
     if (!room) {
       throw new NotFoundException();
