@@ -24,24 +24,25 @@ export class RoomsService {
 
   async create() {
     const date = new Date();
+    const room = await this.prisma.room.create({
+      data: {
+        name: date.toString(),
+      },
+    });
     const plapo = await this.prisma.plapo.create({
       data: {
         ave: 0,
         agreement: 0,
         isVisile: false,
-      },
-    });
-    const room = await this.prisma.room.create({
-      data: {
-        name: date.toString(),
-        plapo: {
+        room: {
           connect: {
-            id: plapo.id,
+            id: room.id,
           },
         },
       },
     });
-    return room;
+
+    return await this.setRoom(room.id);
   }
 
   async update(id: string, updateRoomDto: UpdateRoomDto) {

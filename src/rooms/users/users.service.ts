@@ -1,12 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
+import { RoomsService } from '../rooms.service';
 
 @Injectable()
 export class RoomUsersService {
   private readonly prisma: PrismaClient;
-
-  constructor() {
+  
+  constructor(private readonly roomsService: RoomsService) {
     this.prisma = new PrismaClient();
+    this.roomsService = roomsService;
   }
 
   async create(roomId: string, userFirebaseId: string) {
@@ -20,10 +22,9 @@ export class RoomUsersService {
           increment: 1,
         },
       },
-      include: { users: true },
     });
 
-    return room;
+    return this.roomsService.setRoom(room.id);
   }
 
   async delete(roomId: string, userFirebaseId: string) {
@@ -37,9 +38,8 @@ export class RoomUsersService {
           decrement: 1,
         },
       },
-      include: { users: true },
     });
 
-    return room;
+    return this.roomsService.setRoom(room.id);
   }
 }
