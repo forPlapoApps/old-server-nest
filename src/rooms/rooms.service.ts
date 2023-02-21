@@ -4,11 +4,7 @@ import { PrismaClient } from '@prisma/client';
 
 @Injectable()
 export class RoomsService {
-  private readonly prisma: PrismaClient;
-
-  constructor() {
-    this.prisma = new PrismaClient();
-  }
+  constructor(private readonly prisma: PrismaClient) {}
 
   async findAll() {
     const rooms = await this.prisma.room.findMany({ include: { users: true } });

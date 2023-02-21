@@ -4,11 +4,7 @@ import { PrismaClient } from '@prisma/client';
 
 @Injectable()
 export class UsersService {
-  private readonly prisma: PrismaClient;
-
-  constructor() {
-    this.prisma = new PrismaClient();
-  }
+  constructor(private readonly prisma: PrismaClient) {}
 
   async create(createUserDto: CreateUserDto) {
     // NOTE: このupsertはfind_or_create_byのように扱うため、
@@ -32,6 +28,6 @@ export class UsersService {
     if (!user) {
       throw new NotFoundException();
     }
-    return user
+    return user;
   }
 }
