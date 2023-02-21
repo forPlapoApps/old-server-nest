@@ -19,12 +19,4 @@ export class PlapoService {
 
     return plapo;
   }
-
-  async remove(id: string) {
-    const plapo = await this.prisma.plapo.delete({
-      where: { id },
-    });
-
-    return plapo;
-  }
 }

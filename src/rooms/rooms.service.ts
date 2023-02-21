@@ -18,7 +18,12 @@ export class RoomsService {
   async findOne(roomId: string) {
     const room = await this.prisma.room.findFirst({
       where: { id: roomId },
-      include: { users: true, plapo: true },
+      include: {
+        users: true,
+        plapo: {
+          include: { votes: true },
+        },
+      },
     });
     if (!room) {
       throw new NotFoundException();
