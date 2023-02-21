@@ -1,59 +1,62 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { UpdateRoomDto } from './dto/update-room.dto';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Room } from '@prisma/client';
+import { PlapoService } from 'src/plapo/plapo.service';
 
 @Injectable()
 export class RoomsService {
-  private readonly prisma: PrismaClient;
-
-  constructor() {
-    this.prisma = new PrismaClient();
-  }
+  constructor(
+    private readonly prisma: PrismaClient,
+    private readonly plapoService: PlapoService,
+  ) {}
 
   async findAll() {
     const rooms = await this.prisma.room.findMany({ include: { users: true } });
     return rooms;
   }
 
-  findOne(id: string) {
-    const room = this.setRoom(id);
+  async findOne(roomId: string) {
+    const room = await this.prisma.room.findFirst({
+      where: { id: roomId },
+      include: {
+        users: true,
+        plapo: {
+          include: { votes: true },
+        },
+      },
+    });
+    if (!room) {
+      throw new NotFoundException();
+    }
     return room;
   }
 
-  async create() {
+  async create(): Promise<Room> {
     const date = new Date();
     const room = await this.prisma.room.create({
       data: {
         name: date.toString(),
       },
     });
-    return room;
+    await this.plapoService.create({ roomId: room.id });
+
+    return await this.findOne(room.id);
   }
 
-  async update(id: string, updateRoomDto: UpdateRoomDto) {
+  async update(id: string, updateRoomDto: UpdateRoomDto): Promise<Room> {
     const room = await this.prisma.room.update({
       where: { id },
       data: updateRoomDto,
     });
-    return room;
+
+    return await this.findOne(room.id);
   }
 
-  async remove(id: string) {
+  async remove(id: string): Promise<Room> {
     const room = await this.prisma.room.delete({
       where: { id },
     });
-    return room;
-  }
 
-  // ＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝
-  async setRoom(roomId: string) {
-    const room = await this.prisma.room.findFirst({
-      where: { id: roomId },
-      include: { users: true },
-    });
-    if (!room) {
-      throw new NotFoundException();
-    }
     return room;
   }
 }
