@@ -49,7 +49,7 @@ export class RoomsService {
   async setRoom(roomId: string) {
     const room = await this.prisma.room.findFirst({
       where: { id: roomId },
-      include: { users: true },
+      include: { users: true, plapo: true },
     });
     if (!room) {
       throw new NotFoundException();
