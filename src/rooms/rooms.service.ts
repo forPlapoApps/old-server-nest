@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { UpdateRoomDto } from './dto/update-room.dto';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Room } from '@prisma/client';
 import { PlapoService } from 'src/plapo/plapo.service';
 
 @Injectable()
@@ -15,40 +15,7 @@ export class RoomsService {
     return rooms;
   }
 
-  findOne(id: string) {
-    const room = this.setRoom(id);
-    return room;
-  }
-
-  async create() {
-    const date = new Date();
-    const room = await this.prisma.room.create({
-      data: {
-        name: date.toString(),
-      },
-    });
-    this.plapoService.create({ roomId: room.id });
-
-    return room;
-  }
-
-  async update(id: string, updateRoomDto: UpdateRoomDto) {
-    const room = await this.prisma.room.update({
-      where: { id },
-      data: updateRoomDto,
-    });
-    return room;
-  }
-
-  async remove(id: string) {
-    const room = await this.prisma.room.delete({
-      where: { id },
-    });
-    return room;
-  }
-
-  // ＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝
-  async setRoom(roomId: string) {
+  async findOne(roomId: string) {
     const room = await this.prisma.room.findFirst({
       where: { id: roomId },
       include: { users: true, plapo: true },
@@ -56,6 +23,35 @@ export class RoomsService {
     if (!room) {
       throw new NotFoundException();
     }
+    return room;
+  }
+
+  async create(): Promise<Room> {
+    const date = new Date();
+    const room = await this.prisma.room.create({
+      data: {
+        name: date.toString(),
+      },
+    });
+    await this.plapoService.create({ roomId: room.id });
+
+    return await this.findOne(room.id);
+  }
+
+  async update(id: string, updateRoomDto: UpdateRoomDto): Promise<Room> {
+    const room = await this.prisma.room.update({
+      where: { id },
+      data: updateRoomDto,
+    });
+
+    return await this.findOne(room.id);
+  }
+
+  async remove(id: string): Promise<Room> {
+    const room = await this.prisma.room.delete({
+      where: { id },
+    });
+
     return room;
   }
 }
