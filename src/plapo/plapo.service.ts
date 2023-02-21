@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaClient } from '@prisma/client';
+import { Plapo, PrismaClient } from '@prisma/client';
 import { CreatePlapoDto } from './dto/create-plapo.dto';
 
 @Injectable()
 export class PlapoService {
   constructor(private readonly prisma: PrismaClient) {}
 
-  async create(createPlapoDto: CreatePlapoDto) {
+  async create(createPlapoDto: CreatePlapoDto): Promise<Plapo> {
     const plapo = await this.prisma.plapo.create({
       data: {
         room: {

@@ -1,10 +1,14 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { UpdateRoomDto } from './dto/update-room.dto';
 import { PrismaClient } from '@prisma/client';
+import { PlapoService } from 'src/plapo/plapo.service';
 
 @Injectable()
 export class RoomsService {
-  constructor(private readonly prisma: PrismaClient) {}
+  constructor(
+    private readonly prisma: PrismaClient,
+    private readonly plapoService: PlapoService,
+  ) {}
 
   async findAll() {
     const rooms = await this.prisma.room.findMany({ include: { users: true } });
@@ -23,6 +27,8 @@ export class RoomsService {
         name: date.toString(),
       },
     });
+    this.plapoService.create({ roomId: room.id });
+
     return room;
   }
 
