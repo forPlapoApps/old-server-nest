@@ -1,15 +1,28 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaClient, Vote } from '@prisma/client';
+import { Plapo, PrismaClient, Vote } from '@prisma/client';
 import { CreateVoteDto } from './dto/create-vote.dto';
 import { UpdateVoteDto } from './dto/update-vote.dto';
 import { UsersService } from 'src/users/users.service';
+import { PlapoService } from 'src/plapo/plapo.service';
+
+const mean = require('ml-array-mean');
+const mode = require('ml-array-mode');
 
 @Injectable()
 export class VotesService {
   constructor(
     private readonly prisma: PrismaClient,
     private readonly usersService: UsersService,
+    private readonly plapoService: PlapoService,
   ) {}
+
+  async findOne(id: string) {
+    const vote = await this.prisma.vote.findFirst({
+      where: { id },
+      include: { plapo: true },
+    });
+    return vote;
+  }
 
   async create(createVoteDto: CreateVoteDto): Promise<Vote> {
     const vote = await this.prisma.vote.create({
@@ -26,7 +39,7 @@ export class VotesService {
         },
       },
     });
-    return vote;
+    return await this.findOne(vote.id);
   }
 
   async update(
@@ -45,8 +58,10 @@ export class VotesService {
       data: {
         value: updateVoteDto.value,
       },
+      include: { plapo: true },
     });
-    return vote;
+    await this.calcuratePlapoValue(vote.plapo.id);
+    return await this.findOne(vote.id);
   }
 
   async delete(id: string): Promise<Vote> {
@@ -54,5 +69,23 @@ export class VotesService {
       where: { id },
     });
     return vote;
+  }
+
+  async calcuratePlapoValue(plapoId: string): Promise<Plapo> {
+    const plapo = await this.plapoService.findOne(plapoId);
+
+    const voteValues: number[] = plapo.votes.map((vote) => vote.value);
+
+    const ave = mean(voteValues);
+    const countMode = voteValues.filter(
+      (value) => value == mode(voteValues),
+    ).length;
+    const agreement = (countMode / voteValues.length) * 100;
+
+    return await this.plapoService.update(plapo.id, {
+      ave,
+      agreement,
+      isVisible: false,
+    });
   }
 }

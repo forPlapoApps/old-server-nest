@@ -21,6 +21,7 @@ export class RoomUsersService {
         userId: user.id,
         plapoId: room.plapo.id,
       });
+      await this.votesService.calcuratePlapoValue(room.plapo.id)
     }
     return await this.roomsService.findOne(roomId);
   }
@@ -28,8 +29,9 @@ export class RoomUsersService {
   async delete(roomId: string, userFirebaseId: string) {
     const user = await this.usersService.findOne(userFirebaseId, 'firebase');
     if (this.hasAlreadyEntered(roomId, user)) {
-      await this.disconnectRoomAndUser(roomId, user.id);
+      const room = await this.disconnectRoomAndUser(roomId, user.id);
       await this.votesService.delete(user.votes[0].id);
+      await this.votesService.calcuratePlapoValue(room.plapo.id)
     }
     return await this.roomsService.findOne(roomId);
   }
