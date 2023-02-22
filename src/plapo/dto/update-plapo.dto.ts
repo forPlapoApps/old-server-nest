@@ -1,12 +1,15 @@
-import { IsBoolean, IsOptional } from 'class-validator';
+import { IsBoolean, IsNumber, IsOptional } from 'class-validator';
 
 export class UpdatePlapoDto {
+  @IsNumber()
   @IsOptional()
-  ave: number;
+  ave?: number;
 
+  @IsNumber()
   @IsOptional()
-  agreement: number;
+  agreement?: number;
 
   @IsBoolean()
-  isVisible: boolean;
+  @IsOptional()
+  isVisible?: boolean;
 }
