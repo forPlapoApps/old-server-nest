@@ -38,7 +38,7 @@ model Plapo {
   updatedAt DateTime @updatedAt
   ave       Int      @default(0)
   agreement Int      @default(0)
-  isVisile  Boolean  @default(false)
+  isVisible  Boolean  @default(false)
   votes     Vote[]
   room      Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
   roomId    String   @unique
