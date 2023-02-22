@@ -24,4 +24,12 @@ export class VotesService {
 
     return vote;
   }
+
+  async delete(id: string): Promise<Vote> {
+    const vote = await this.prisma.vote.delete({
+      where: { id },
+    });
+
+    return vote;
+  }
 }

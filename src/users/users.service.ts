@@ -12,7 +12,10 @@ export class UsersService {
 
   async findOne(id: string, from?: 'firebase') {
     const query: Query = this.getUserQuery(id, from);
-    const user = await this.prisma.user.findFirst(query);
+    const user = await this.prisma.user.findFirst({
+      ...query,
+      include: { rooms: true, votes: true },
+    });
 
     if (!user) {
       throw new NotFoundException();
