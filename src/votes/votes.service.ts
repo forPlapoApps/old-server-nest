@@ -71,7 +71,7 @@ export class VotesService {
     return vote;
   }
 
-  private async calcuratePlapoValue(plapoId: string): Promise<Plapo> {
+  async calcuratePlapoValue(plapoId: string): Promise<Plapo> {
     const plapo = await this.plapoService.findOne(plapoId);
 
     const voteValues: number[] = plapo.votes.map((vote) => vote.value);
