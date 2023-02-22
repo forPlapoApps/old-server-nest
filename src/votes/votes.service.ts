@@ -5,7 +5,7 @@ import { UpdateVoteDto } from './dto/update-vote.dto';
 import { UsersService } from 'src/users/users.service';
 import { PlapoService } from 'src/plapo/plapo.service';
 
-const mean = require('ml-array-mean')
+const mean = require('ml-array-mean');
 
 @Injectable()
 export class VotesService {
@@ -14,6 +14,14 @@ export class VotesService {
     private readonly usersService: UsersService,
     private readonly plapoService: PlapoService,
   ) {}
+
+  async findOne(id: string) {
+    const vote = await this.prisma.vote.findFirst({
+      where: { id },
+      include: { plapo: true },
+    });
+    return vote;
+  }
 
   async create(createVoteDto: CreateVoteDto): Promise<Vote> {
     const vote = await this.prisma.vote.create({
@@ -30,7 +38,7 @@ export class VotesService {
         },
       },
     });
-    return vote;
+    return await this.findOne(vote.id);
   }
 
   async update(
@@ -51,8 +59,8 @@ export class VotesService {
       },
       include: { plapo: true },
     });
-    await this.updatePlapoValue(vote.plapo.id);
-    return vote;
+    await this.calcuratePlapoValue(vote.plapo.id);
+    return await this.findOne(vote.id);
   }
 
   async delete(id: string): Promise<Vote> {
@@ -62,10 +70,10 @@ export class VotesService {
     return vote;
   }
 
-  private async updatePlapoValue(plapoId: string): Promise<Plapo> {
-    const plapo = await this.plapoService.findOne(plapoId)
-    const ave = mean(plapo.votes.map((vote) => vote.value))
-    
+  private async calcuratePlapoValue(plapoId: string): Promise<Plapo> {
+    const plapo = await this.plapoService.findOne(plapoId);
+    const ave = mean(plapo.votes.map((vote) => vote.value));
+
     return await this.plapoService.update(plapo.id, {
       ave,
       agreement: 10,
