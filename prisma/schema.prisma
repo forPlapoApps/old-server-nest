@@ -36,8 +36,8 @@ model Plapo {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  ave       Int      @default(0)
-  agreement Int      @default(0)
+  ave       Float      @default(0)
+  agreement Float      @default(0)
   isVisible  Boolean  @default(false)
   votes     Vote[]
   room      Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)

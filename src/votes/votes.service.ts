@@ -1,14 +1,18 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaClient, Vote } from '@prisma/client';
+import { Plapo, PrismaClient, Vote } from '@prisma/client';
 import { CreateVoteDto } from './dto/create-vote.dto';
 import { UpdateVoteDto } from './dto/update-vote.dto';
 import { UsersService } from 'src/users/users.service';
+import { PlapoService } from 'src/plapo/plapo.service';
+
+const mean = require('ml-array-mean')
 
 @Injectable()
 export class VotesService {
   constructor(
     private readonly prisma: PrismaClient,
     private readonly usersService: UsersService,
+    private readonly plapoService: PlapoService,
   ) {}
 
   async create(createVoteDto: CreateVoteDto): Promise<Vote> {
@@ -45,7 +49,9 @@ export class VotesService {
       data: {
         value: updateVoteDto.value,
       },
+      include: { plapo: true },
     });
+    await this.updatePlapoValue(vote.plapo.id);
     return vote;
   }
 
@@ -54,5 +60,16 @@ export class VotesService {
       where: { id },
     });
     return vote;
+  }
+
+  private async updatePlapoValue(plapoId: string): Promise<Plapo> {
+    const plapo = await this.plapoService.findOne(plapoId)
+    const ave = mean(plapo.votes.map((vote) => vote.value))
+    
+    return await this.plapoService.update(plapo.id, {
+      ave,
+      agreement: 10,
+      isVisible: true,
+    });
   }
 }
