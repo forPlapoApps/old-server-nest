@@ -6,6 +6,7 @@ import { UsersService } from 'src/users/users.service';
 import { PlapoService } from 'src/plapo/plapo.service';
 
 const mean = require('ml-array-mean');
+const mode = require('ml-array-mode');
 
 @Injectable()
 export class VotesService {
@@ -72,12 +73,19 @@ export class VotesService {
 
   private async calcuratePlapoValue(plapoId: string): Promise<Plapo> {
     const plapo = await this.plapoService.findOne(plapoId);
-    const ave = mean(plapo.votes.map((vote) => vote.value));
+
+    const voteValues: number[] = plapo.votes.map((vote) => vote.value);
+
+    const ave = mean(voteValues);
+    const countMode = voteValues.filter(
+      (value) => value == mode(voteValues),
+    ).length;
+    const agreement = (countMode / voteValues.length) * 100;
 
     return await this.plapoService.update(plapo.id, {
       ave,
-      agreement: 10,
-      isVisible: true,
+      agreement,
+      isVisible: false,
     });
   }
 }
