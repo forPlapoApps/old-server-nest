@@ -21,7 +21,11 @@ export class RoomsService {
       include: {
         users: true,
         plapo: {
-          include: { votes: true },
+          include: {
+            votes: {
+              include: { user: true },
+            },
+          },
         },
       },
     });

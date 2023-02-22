@@ -1,41 +1,81 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaClient } from '@prisma/client';
+import { Plapo, PrismaClient, Room, User } from '@prisma/client';
+import { RoomsService } from '../rooms.service';
+import { VotesService } from 'src/votes/votes.service';
+import { UsersService } from 'src/users/users.service';
 
 @Injectable()
 export class RoomUsersService {
-  constructor(private readonly prisma: PrismaClient) {}
+  constructor(
+    private readonly prisma: PrismaClient,
+    private readonly roomsService: RoomsService,
+    private readonly votesService: VotesService,
+    private readonly usersService: UsersService,
+  ) {}
 
   async create(roomId: string, userFirebaseId: string) {
+    const user = await this.usersService.findOne(userFirebaseId, 'firebase');
+    if (!this.hasAlreadyEntered(roomId, user)) {
+      const room = await this.connectRoomWithUser(roomId, user.id);
+      await this.votesService.create({
+        userId: user.id,
+        plapoId: room.plapo.id,
+      });
+    }
+    return await this.roomsService.findOne(roomId);
+  }
+
+  async delete(roomId: string, userFirebaseId: string) {
+    const user = await this.usersService.findOne(userFirebaseId, 'firebase');
+    if (this.hasAlreadyEntered(roomId, user)) {
+      await this.disconnectRoomAndUser(roomId, user.id);
+      await this.votesService.delete(user.votes[0].id);
+    }
+    return await this.roomsService.findOne(roomId);
+  }
+
+  private hasAlreadyEntered(
+    roomId: string,
+    user: User & { rooms: Room[] },
+  ): boolean {
+    return user.rooms.some((room) => room.id === roomId);
+  }
+
+  private async connectRoomWithUser(
+    roomId: string,
+    userId: string,
+  ): Promise<Room & { users: User[]; plapo: Plapo }> {
     const room = await this.prisma.room.update({
       where: { id: roomId },
       data: {
         users: {
-          connect: { firebaseId: userFirebaseId },
+          connect: { id: userId },
         },
         participantsLength: {
           increment: 1,
         },
       },
-      include: { users: true },
+      include: { users: true, plapo: true },
     });
-
     return room;
   }
 
-  async delete(roomId: string, userFirebaseId: string) {
+  private async disconnectRoomAndUser(
+    roomId: string,
+    userId: string,
+  ): Promise<Room & { users: User[]; plapo: Plapo }> {
     const room = await this.prisma.room.update({
       where: { id: roomId },
       data: {
         users: {
-          disconnect: { firebaseId: userFirebaseId },
+          disconnect: { id: userId },
         },
         participantsLength: {
           decrement: 1,
         },
       },
-      include: { users: true },
+      include: { users: true, plapo: true },
     });
-
     return room;
   }
 }

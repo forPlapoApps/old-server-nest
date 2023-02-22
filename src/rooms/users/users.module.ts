@@ -6,6 +6,7 @@ import { RoomsService } from '../rooms.service';
 import { UsersService } from 'src/users/users.service';
 import { PrismaClient } from '@prisma/client';
 import { PlapoService } from 'src/plapo/plapo.service';
+import { VotesService } from 'src/votes/votes.service';
 
 @Module({
   controllers: [RoomUsersController],
@@ -15,6 +16,7 @@ import { PlapoService } from 'src/plapo/plapo.service';
     UsersService,
     PrismaClient,
     PlapoService,
+    VotesService
   ],
   imports: [AuthModule],
 })

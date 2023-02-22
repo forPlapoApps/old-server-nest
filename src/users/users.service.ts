@@ -2,9 +2,26 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { PrismaClient } from '@prisma/client';
 
+type Query = {
+  where: { id?: string; firebaseId?: string };
+};
+
 @Injectable()
 export class UsersService {
   constructor(private readonly prisma: PrismaClient) {}
+
+  async findOne(id: string, from?: 'firebase') {
+    const query: Query = this.getUserQuery(id, from);
+    const user = await this.prisma.user.findFirst({
+      ...query,
+      include: { rooms: true, votes: true },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User was not found.');
+    }
+    return user;
+  }
 
   async create(createUserDto: CreateUserDto) {
     // NOTE: このupsertはfind_or_create_byのように扱うため、
@@ -17,17 +34,12 @@ export class UsersService {
       create: createUserDto,
     });
 
-    return user;
+    return await this.findOne(user.id);
   }
 
-  // =================
-  async setUser(userFirebaseId: string) {
-    const user = await this.prisma.user.findFirst({
-      where: { firebaseId: userFirebaseId },
-    });
-    if (!user) {
-      throw new NotFoundException();
-    }
-    return user;
+  getUserQuery(userId: string, from?: 'firebase') {
+    return from == 'firebase'
+      ? { where: { firebaseId: userId } }
+      : { where: { id: userId } };
   }
 }
