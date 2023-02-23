@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Plapo, PrismaClient, Room, User } from '@prisma/client';
-import { RoomsService } from '../rooms.service';
+import { RoomsService } from '../rooms/rooms.service';
 import { VotesService } from 'src/votes/votes.service';
 import { UsersService } from 'src/users/users.service';
 
@@ -21,7 +21,7 @@ export class RoomUsersService {
         userId: user.id,
         plapoId: room.plapo.id,
       });
-      await this.votesService.calcuratePlapoValue(room.plapo.id)
+      await this.votesService.calcuratePlapoValue(room.plapo.id);
     }
     return await this.roomsService.findOne(roomId);
   }
@@ -31,7 +31,7 @@ export class RoomUsersService {
     if (this.hasAlreadyEntered(roomId, user)) {
       const room = await this.disconnectRoomAndUser(roomId, user.id);
       await this.votesService.delete(user.votes[0].id);
-      await this.votesService.calcuratePlapoValue(room.plapo.id)
+      await this.votesService.calcuratePlapoValue(room.plapo.id);
     }
     return await this.roomsService.findOne(roomId);
   }

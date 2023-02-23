@@ -1,5 +1,5 @@
 import { Controller, Delete, Param, Post, UseGuards } from '@nestjs/common';
-import { RoomUsersService } from './users.service';
+import { RoomUsersService } from './roomUsers.service';
 import { AuthGuard } from 'src/guard/auth/auth.guard';
 import { UserGuardDecorator } from 'decorators/UserGuardDecorator';
 
@@ -10,12 +10,12 @@ export class RoomUsersController {
   @Post()
   @UseGuards(AuthGuard)
   create(@Param('roomId') roomId: string, @UserGuardDecorator() firebaseUser) {
-    return this.roomUsersService.create(roomId, firebaseUser.user_id)
+    return this.roomUsersService.create(roomId, firebaseUser.user_id);
   }
 
   @Delete()
   @UseGuards(AuthGuard)
   delete(@Param('roomId') roomId: string, @UserGuardDecorator() firebaseUser) {
-    return this.roomUsersService.delete(roomId, firebaseUser.user_id)
+    return this.roomUsersService.delete(roomId, firebaseUser.user_id);
   }
 }
