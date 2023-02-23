@@ -9,5 +9,6 @@ import { PlapoService } from 'src/plapo/plapo.service';
   controllers: [RoomsController],
   providers: [RoomsService, PrismaClient, PlapoService],
   imports: [RoomUsersModule],
+  exports: [RoomsService],
 })
 export class RoomsModule {}
