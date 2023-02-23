@@ -74,7 +74,10 @@ export class VotesService {
   async calcuratePlapoValue(plapoId: string): Promise<Plapo> {
     const plapo = await this.plapoService.findOne(plapoId);
 
-    const voteValues: number[] = plapo.votes.map((vote) => vote.value);
+    let voteValues: number[] = plapo.votes.map((vote) => vote.value);
+    if (!voteValues.length) {
+      voteValues = [0]
+    }
 
     const ave = mean(voteValues);
     const countMode = voteValues.filter(

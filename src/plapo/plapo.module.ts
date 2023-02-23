@@ -6,6 +6,7 @@ import { AuthService } from 'src/guard/auth/auth.service';
 
 @Module({
   controllers: [PlapoController],
-  providers: [PlapoService, PrismaClient, AuthService]
+  providers: [PlapoService, PrismaClient, AuthService],
+  exports: [PlapoService]
 })
 export class PlapoModule {}

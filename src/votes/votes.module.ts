@@ -8,6 +8,13 @@ import { PlapoService } from 'src/plapo/plapo.service';
 
 @Module({
   controllers: [VotesController],
-  providers: [VotesService, PrismaClient, AuthService, UsersService, PlapoService],
+  providers: [
+    VotesService,
+    PrismaClient,
+    AuthService,
+    UsersService,
+    PlapoService,
+  ],
+  exports: [VotesService],
 })
 export class VotesModule {}
